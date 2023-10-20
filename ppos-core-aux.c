@@ -13,14 +13,12 @@ struct itimerval timer;
 void task_set_eet(task_t *task, int et)
 {
     if (!task){
-        printf("setting eet %d", et);
         taskExec->eet = et;
-        taskExec->elapsedTime = 0;
+        taskExec->running_time = 0;
     }
     else{
-        printf("setting eet %d", et);
         task->eet = et;
-        task->elapsedTime = 0;
+        task->running_time = 0;
     }
 }
 
@@ -35,9 +33,9 @@ int task_get_eet(task_t *task)
 int task_get_ret(task_t *task)
 {
     if (!task)
-        return taskExec->eet - taskExec->elapsedTime;
+        return taskExec->eet - taskExec->running_time;
     else
-        return task->eet - task->elapsedTime;
+        return task->eet - task->running_time;
 }
 
 void task_setprio(task_t *task, int prio)
@@ -55,14 +53,16 @@ int task_getprio(task_t *task)
 /* função que tratará os sinais recebidos */
 void tratador(int signum)
 {
-    printf("Recebi o sinal %d\n", signum);
-    taskExec->elapsedTime++;
+    // printf("Recebi o sinal %d\n", signum);
+    taskExec->running_time++;
     currentTaskTime++;
-    printf("id: %d current time: %d\n", taskExec->id, currentTaskTime);
+    systemTime++;
+    // printf("rt main %d\n", taskMain->eet);
+    // printf("id: %d current time: %d\n", taskExec->id, currentTaskTime);
     if (currentTaskTime >= 20 && taskExec->id != taskDisp->id)
     {
         currentTaskTime = 0;
-        task_switch(scheduler());
+        task_yield();
     }
 }
 
@@ -109,7 +109,7 @@ void after_ppos_init()
 void before_task_create(task_t *task)
 {
 
-    // task_set_eet(task, 1000);
+    task_set_eet(task, 99999);
 #ifdef DEBUG
     printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
@@ -525,13 +525,14 @@ int after_mqueue_msgs(mqueue_t *queue)
 }
 
 task_t *scheduler()
-{
-    // FCFS scheduler
+{       
     task_t *nextTask = readyQueue, *chosenTask = NULL;
+
+     // FCFS scheduler
     int minRemaingTime = __INT_MAX__;
     
     for(int i = 0; i < countTasks; i++){
-        printf("task id %d of %d with rt %d\n", nextTask->id, countTasks, task_get_ret(nextTask));
+        // printf("task %d, rt %d\n", nextTask->id, nextid->current_time);
         if (task_get_ret(nextTask) < minRemaingTime)
         {
             chosenTask = nextTask;
@@ -539,7 +540,5 @@ task_t *scheduler()
         }
         nextTask = nextTask->next;
     }
-
-    printf("I have chosen %d\n", chosenTask->id);
     return chosenTask;
 }
