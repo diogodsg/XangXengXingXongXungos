@@ -12,10 +12,16 @@ struct itimerval timer;
 
 void task_set_eet(task_t *task, int et)
 {
-    if (!task)
+    if (!task){
+        printf("setting eet %d", et);
         taskExec->eet = et;
-    else
+        taskExec->elapsedTime = 0;
+    }
+    else{
+        printf("setting eet %d", et);
         task->eet = et;
+        task->elapsedTime = 0;
+    }
 }
 
 int task_get_eet(task_t *task)
@@ -52,16 +58,18 @@ void tratador(int signum)
     printf("Recebi o sinal %d\n", signum);
     taskExec->elapsedTime++;
     currentTaskTime++;
-
-    if (currentTaskTime == 20 && taskExec->id != taskMain->id && taskExec->id != taskDisp->id)
+    printf("id: %d current time: %d\n", taskExec->id, currentTaskTime);
+    if (currentTaskTime >= 20 && taskExec->id != taskDisp->id)
     {
-        taskExec = scheduler();
         currentTaskTime = 0;
+        task_switch(scheduler());
     }
 }
 
 void before_ppos_init()
 {
+
+
     // registra a ação para o sinal de timer SIGALRM
     action.sa_handler = tratador;
     sigemptyset(&action.sa_mask);
@@ -100,7 +108,8 @@ void after_ppos_init()
 
 void before_task_create(task_t *task)
 {
-    // put your customization here
+
+    // task_set_eet(task, 1000);
 #ifdef DEBUG
     printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
@@ -520,7 +529,9 @@ task_t *scheduler()
     // FCFS scheduler
     task_t *nextTask = readyQueue, *chosenTask = NULL;
     int minRemaingTime = __INT_MAX__;
+    
     for(int i = 0; i < countTasks; i++){
+        printf("task id %d of %d with rt %d\n", nextTask->id, countTasks, task_get_ret(nextTask));
         if (task_get_ret(nextTask) < minRemaingTime)
         {
             chosenTask = nextTask;
@@ -529,5 +540,6 @@ task_t *scheduler()
         nextTask = nextTask->next;
     }
 
+    printf("I have chosen %d\n", chosenTask->id);
     return chosenTask;
 }
