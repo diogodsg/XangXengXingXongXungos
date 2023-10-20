@@ -1,9 +1,14 @@
 #include "ppos.h"
 #include "ppos-core-globals.h"
+#include <signal.h>
+#include <sys/time.h>
 
 // ****************************************************************************
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
 // estruturas e funções
+int currentTaskTime;
+struct sigaction action;
+struct itimerval timer;
 
 void task_set_eet(task_t *task, int et)
 {
@@ -29,17 +34,26 @@ int task_get_ret(task_t *task)
         return task->eet - task->elapsedTime;
 }
 
+void task_setprio(task_t *task, int prio)
+{
+
+}
+
+int task_getprio(task_t *task)
+{
+    return 0;
+}
+
 // ****************************************************************************
 
 /* função que tratará os sinais recebidos */
 void tratador(int signum)
 {
     printf("Recebi o sinal %d\n", signum);
-
     taskExec->elapsedTime++;
     currentTaskTime++;
 
-    if (currentTaskTime == 20)
+    if (currentTaskTime == 20 && taskExec->id != taskMain->id && taskExec->id != taskDisp->id)
     {
         taskExec = scheduler();
         currentTaskTime = 0;
@@ -504,15 +518,16 @@ int after_mqueue_msgs(mqueue_t *queue)
 task_t *scheduler()
 {
     // FCFS scheduler
-    task_t *nextTask;
+    task_t *nextTask = readyQueue, *chosenTask = NULL;
     int minRemaingTime = __INT_MAX__;
-    for (task_t *i = readyQueue; i != NULL; i = i->next)
-    {
-        if (task_get_ret(i) < minRemaingTime)
+    for(int i = 0; i < countTasks; i++){
+        if (task_get_ret(nextTask) < minRemaingTime)
         {
-            nextTask = i;
-            minRemaingTime = task_get_ret(i);
+            chosenTask = nextTask;
+            minRemaingTime = task_get_ret(chosenTask);
         }
+        nextTask = nextTask->next;
     }
-    return nextTask;
+
+    return chosenTask;
 }

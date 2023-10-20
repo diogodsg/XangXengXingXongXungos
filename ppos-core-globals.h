@@ -8,12 +8,13 @@ extern task_t *taskDisp;   // Ponteiro para a tarefa de escalonamento (dispatche
 extern task_t *freeTask;   // Ponteiro para a tarefa que terminou
 extern task_t *readyQueue; // Ponteiro para a fila de tarefas prontas
 extern task_t *sleepQueue; // Ponteiro para a fila de tarefas dormindo
-extern int currentTaskTime;
 extern long nextid;              // Valor do proximo ID a ser usado pelo task_create()
 extern long countTasks;          // Total de tarefas de usuario
 extern unsigned char preemption; // indica se pode haver preempcao no momento.
                                  // Valor 1 indica que a preempcao esta habilido,
                                  // qualquer outro valor indica desabilitado
 extern unsigned int systemTime;  // conta o tempo global do sistema, em ticks do relogio
+
+
 
 #endif
