@@ -6,9 +6,15 @@
 // ****************************************************************************
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
 // estruturas e funções
+
+#define TICK_TIME 1
+#define QUANTUM_SIZE 20
+
 int currentTaskTime;
 struct sigaction action;
 struct itimerval timer;
+
+
 
 void task_set_eet(task_t *task, int et)
 {
@@ -54,12 +60,12 @@ int task_getprio(task_t *task)
 void tratador(int signum)
 {
     // printf("Recebi o sinal %d\n", signum);
-    taskExec->running_time++;
+    taskExec->running_time += TICK_TIME;
     currentTaskTime++;
-    systemTime++;
+    systemTime += TICK_TIME;
     // printf("rt main %d\n", taskMain->eet);
     // printf("id: %d current time: %d\n", taskExec->id, currentTaskTime);
-    if (currentTaskTime >= 20 && taskExec->id != taskDisp->id)
+    if (currentTaskTime >= QUANTUM_SIZE && taskExec->id != taskDisp->id)
     {
         currentTaskTime = 0;
         task_yield();
@@ -81,9 +87,9 @@ void before_ppos_init()
     }
 
     // ajusta valores do temporizador
-    timer.it_value.tv_usec = 1000;    // primeiro disparo, em micro-segundos
+    timer.it_value.tv_usec = TICK_TIME*1000;    // primeiro disparo, em micro-segundos
     timer.it_value.tv_sec = 0;        // primeiro disparo, em segundos
-    timer.it_interval.tv_usec = 1000; // disparos subsequentes, em micro-segundos
+    timer.it_interval.tv_usec = TICK_TIME*1000; // disparos subsequentes, em micro-segundos
     timer.it_interval.tv_sec = 0;     // disparos subsequentes, em segundos
 
     // arma o temporizador ITIMER_REAL (vide man setitimer)
@@ -110,6 +116,7 @@ void before_task_create(task_t *task)
 {
 
     task_set_eet(task, 99999);
+    task->start_time = systime();
 #ifdef DEBUG
     printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
@@ -126,6 +133,7 @@ void after_task_create(task_t *task)
 void before_task_exit()
 {
     // put your customization here
+    printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, systime()-taskExec->start_time, taskExec->running_time, taskExec->activations);
 #ifdef DEBUG
     printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
 #endif
@@ -540,5 +548,6 @@ task_t *scheduler()
         }
         nextTask = nextTask->next;
     }
+    chosenTask->activations++;
     return chosenTask;
 }
