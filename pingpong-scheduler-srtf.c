@@ -90,11 +90,8 @@ int main (int argc, char *argv[])
     task_create (&user_tasks[i], Body, &user_tasks_names[i]) ;
     task_set_eet(&user_tasks[i], user_tasks_execution_time[i]);
   }
-  // while(1);
-  for (i=0; i<USER_TASKS_MAX; i++) {
-    task_join (&user_tasks[i]) ;
-  }
 
+  task_yield () ;
 
   printf ("main: fim\n");
   exit (0) ;

@@ -7,6 +7,8 @@
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
 // estruturas e funções
 
+#include <limits.h>
+
 #define TICK_TIME 1
 #define QUANTUM_SIZE 20
 
@@ -107,6 +109,7 @@ void before_ppos_init()
 void after_ppos_init()
 {
     // put your customization here
+    task_set_eet(taskMain, INT_MAX);
 #ifdef DEBUG
     printf("\ninit - AFTER");
 #endif
