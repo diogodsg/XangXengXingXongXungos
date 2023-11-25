@@ -1,12 +1,13 @@
 #include "ppos.h"
 #include "ppos-core-globals.h"
-#include <signal.h>
-#include <sys/time.h>
 
 // ****************************************************************************
 // Coloque aqui as suas modificações, p.ex. includes, defines variáveis,
 // estruturas e funções
 
+
+#include <signal.h>
+#include <sys/time.h>
 #include <limits.h>
 
 #define TICK_TIME 1
@@ -109,7 +110,7 @@ void before_ppos_init()
 void after_ppos_init()
 {
     // put your customization here
-    task_set_eet(taskMain, INT_MAX);
+    task_set_eet(taskMain, INT_MAX-1);
 #ifdef DEBUG
     printf("\ninit - AFTER");
 #endif
