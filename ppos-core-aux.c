@@ -17,26 +17,27 @@ int currentTaskTime;
 struct sigaction action;
 struct itimerval timer;
 
-task_t *taskIdle;   // Ponteiro para a TCB da tarefa ociosa
+task_t* taskIdle;   // Ponteiro para a TCB da tarefa ociosa
 char* taskIdleName = "taskIdle";
 
-void task_idle_body(){
-    while (1);   
+void task_idle_body() {
+    while (1);
 }
 
-void task_set_eet(task_t *task, int et)
+
+
+void task_set_eet(task_t* task, int et)
 {
-    if (!task){
+    if (!task) {
         taskExec->eet = et;
         taskExec->running_time = 0;
-    }
-    else{
+    } else {
         task->eet = et;
         task->running_time = 0;
     }
 }
 
-int task_get_eet(task_t *task)
+int task_get_eet(task_t* task)
 {
     if (!task)
         return taskExec->eet;
@@ -44,7 +45,7 @@ int task_get_eet(task_t *task)
         return task->eet;
 }
 
-int task_get_ret(task_t *task)
+int task_get_ret(task_t* task)
 {
     if (!task)
         return taskExec->eet - taskExec->running_time;
@@ -52,12 +53,12 @@ int task_get_ret(task_t *task)
         return task->eet - task->running_time;
 }
 
-void task_setprio(task_t *task, int prio)
+void task_setprio(task_t* task, int prio)
 {
 
 }
 
-int task_getprio(task_t *task)
+int task_getprio(task_t* task)
 {
     return 0;
 }
@@ -67,7 +68,7 @@ int task_getprio(task_t *task)
 /* função que tratará os sinais recebidos */
 void tratador(int signum)
 {
-    // printf("Recebi o sinal %d\n", signum);
+    // printf("Recebi o sinal %d - TRATADOR\n", signum);
     taskExec->running_time += TICK_TIME;
     currentTaskTime++;
     systemTime += TICK_TIME;
@@ -94,9 +95,9 @@ void before_ppos_init()
     }
 
     // ajusta valores do temporizador
-    timer.it_value.tv_usec = TICK_TIME*1000;    // primeiro disparo, em micro-segundos
+    timer.it_value.tv_usec = TICK_TIME * 1000;    // primeiro disparo, em micro-segundos
     timer.it_value.tv_sec = 0;        // primeiro disparo, em segundos
-    timer.it_interval.tv_usec = TICK_TIME*1000; // disparos subsequentes, em micro-segundos
+    timer.it_interval.tv_usec = TICK_TIME * 1000; // disparos subsequentes, em micro-segundos
     timer.it_interval.tv_sec = 0;     // disparos subsequentes, em segundos
 
     // arma o temporizador ITIMER_REAL (vide man setitimer)
@@ -114,8 +115,7 @@ void before_ppos_init()
 void after_ppos_init()
 {
     // put your customization here
-    task_set_eet(taskMain, INT_MAX-1);
-    //sprintf(taskIdleName, "NEWTask[%2d]", 1);
+    task_set_eet(taskMain, INT_MAX - 1);
 
     // task_create (taskIdle, task_idle_body, &taskIdleName);
 #ifdef DEBUG
@@ -123,7 +123,7 @@ void after_ppos_init()
 #endif
 }
 
-void before_task_create(task_t *task)
+void before_task_create(task_t* task)
 {
 
     task_set_eet(task, 99999);
@@ -134,7 +134,7 @@ void before_task_create(task_t *task)
 #endif
 }
 
-void after_task_create(task_t *task)
+void after_task_create(task_t* task)
 {
     // put your customization here
 #ifdef DEBUG
@@ -145,7 +145,7 @@ void after_task_create(task_t *task)
 void before_task_exit()
 {
     // put your customization here
-    printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, systime()-taskExec->start_time, taskExec->running_time, taskExec->activations);
+    printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, systime() - taskExec->start_time, taskExec->running_time, taskExec->activations);
 #ifdef DEBUG
     printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
 #endif
@@ -159,16 +159,15 @@ void after_task_exit()
 #endif
 }
 
-void before_task_switch(task_t *task)
+void before_task_switch(task_t* task)
 {
     // put your customization here
-    printf("\ntask_switch ========== [%d -> %d]", taskExec->id, task->id);
 #ifdef DEBUG
     printf("\ntask_switch - BEFORE - [%d -> %d]", taskExec->id, task->id);
 #endif
 }
 
-void after_task_switch(task_t *task)
+void after_task_switch(task_t* task)
 {
     // put your customization here
 #ifdef DEBUG
@@ -191,14 +190,14 @@ void after_task_yield()
 #endif
 }
 
-void before_task_suspend(task_t *task)
+void before_task_suspend(task_t* task)
 {
 #ifdef DEBUG
     printf("\ntask_suspend - BEFORE - [%d]", task->id);
 #endif
 }
 
-void after_task_suspend(task_t *task)
+void after_task_suspend(task_t* task)
 {
     // put your customization here
     task->suspended = 1;
@@ -207,7 +206,7 @@ void after_task_suspend(task_t *task)
 #endif
 }
 
-void before_task_resume(task_t *task)
+void before_task_resume(task_t* task)
 {
     // put your customization here
     // printf("before resuming task\n");
@@ -217,7 +216,7 @@ void before_task_resume(task_t *task)
 #endif
 }
 
-void after_task_resume(task_t *task)
+void after_task_resume(task_t* task)
 {
     // put your customization here
     // printf("after resuming task\n");
@@ -243,7 +242,7 @@ void after_task_sleep()
 #endif
 }
 
-int before_task_join(task_t *task)
+int before_task_join(task_t* task)
 {
     // put your customization here
 #ifdef DEBUG
@@ -252,7 +251,7 @@ int before_task_join(task_t *task)
     return 0;
 }
 
-int after_task_join(task_t *task)
+int after_task_join(task_t* task)
 {
     // put your customization here
 #ifdef DEBUG
@@ -261,7 +260,7 @@ int after_task_join(task_t *task)
     return 0;
 }
 
-int before_sem_create(semaphore_t *s, int value)
+int before_sem_create(semaphore_t* s, int value)
 {
     // put your customization here
 #ifdef DEBUG
@@ -270,7 +269,7 @@ int before_sem_create(semaphore_t *s, int value)
     return 0;
 }
 
-int after_sem_create(semaphore_t *s, int value)
+int after_sem_create(semaphore_t* s, int value)
 {
     // put your customization here
 #ifdef DEBUG
@@ -279,7 +278,7 @@ int after_sem_create(semaphore_t *s, int value)
     return 0;
 }
 
-int before_sem_down(semaphore_t *s)
+int before_sem_down(semaphore_t* s)
 {
     // put your customization here
 #ifdef DEBUG
@@ -288,7 +287,7 @@ int before_sem_down(semaphore_t *s)
     return 0;
 }
 
-int after_sem_down(semaphore_t *s)
+int after_sem_down(semaphore_t* s)
 {
     // put your customization here
 #ifdef DEBUG
@@ -297,7 +296,7 @@ int after_sem_down(semaphore_t *s)
     return 0;
 }
 
-int before_sem_up(semaphore_t *s)
+int before_sem_up(semaphore_t* s)
 {
     // put your customization here
 #ifdef DEBUG
@@ -306,7 +305,7 @@ int before_sem_up(semaphore_t *s)
     return 0;
 }
 
-int after_sem_up(semaphore_t *s)
+int after_sem_up(semaphore_t* s)
 {
     // put your customization here
 #ifdef DEBUG
@@ -315,7 +314,7 @@ int after_sem_up(semaphore_t *s)
     return 0;
 }
 
-int before_sem_destroy(semaphore_t *s)
+int before_sem_destroy(semaphore_t* s)
 {
     // put your customization here
 #ifdef DEBUG
@@ -324,7 +323,7 @@ int before_sem_destroy(semaphore_t *s)
     return 0;
 }
 
-int after_sem_destroy(semaphore_t *s)
+int after_sem_destroy(semaphore_t* s)
 {
     // put your customization here
 #ifdef DEBUG
@@ -333,7 +332,7 @@ int after_sem_destroy(semaphore_t *s)
     return 0;
 }
 
-int before_mutex_create(mutex_t *m)
+int before_mutex_create(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -342,7 +341,7 @@ int before_mutex_create(mutex_t *m)
     return 0;
 }
 
-int after_mutex_create(mutex_t *m)
+int after_mutex_create(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -351,7 +350,7 @@ int after_mutex_create(mutex_t *m)
     return 0;
 }
 
-int before_mutex_lock(mutex_t *m)
+int before_mutex_lock(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -360,7 +359,7 @@ int before_mutex_lock(mutex_t *m)
     return 0;
 }
 
-int after_mutex_lock(mutex_t *m)
+int after_mutex_lock(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -369,7 +368,7 @@ int after_mutex_lock(mutex_t *m)
     return 0;
 }
 
-int before_mutex_unlock(mutex_t *m)
+int before_mutex_unlock(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -378,7 +377,7 @@ int before_mutex_unlock(mutex_t *m)
     return 0;
 }
 
-int after_mutex_unlock(mutex_t *m)
+int after_mutex_unlock(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -387,7 +386,7 @@ int after_mutex_unlock(mutex_t *m)
     return 0;
 }
 
-int before_mutex_destroy(mutex_t *m)
+int before_mutex_destroy(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -396,7 +395,7 @@ int before_mutex_destroy(mutex_t *m)
     return 0;
 }
 
-int after_mutex_destroy(mutex_t *m)
+int after_mutex_destroy(mutex_t* m)
 {
     // put your customization here
 #ifdef DEBUG
@@ -405,7 +404,7 @@ int after_mutex_destroy(mutex_t *m)
     return 0;
 }
 
-int before_barrier_create(barrier_t *b, int N)
+int before_barrier_create(barrier_t* b, int N)
 {
     // put your customization here
 #ifdef DEBUG
@@ -414,7 +413,7 @@ int before_barrier_create(barrier_t *b, int N)
     return 0;
 }
 
-int after_barrier_create(barrier_t *b, int N)
+int after_barrier_create(barrier_t* b, int N)
 {
     // put your customization here
 #ifdef DEBUG
@@ -423,7 +422,7 @@ int after_barrier_create(barrier_t *b, int N)
     return 0;
 }
 
-int before_barrier_join(barrier_t *b)
+int before_barrier_join(barrier_t* b)
 {
     // put your customization here
 #ifdef DEBUG
@@ -432,7 +431,7 @@ int before_barrier_join(barrier_t *b)
     return 0;
 }
 
-int after_barrier_join(barrier_t *b)
+int after_barrier_join(barrier_t* b)
 {
     // put your customization here
 #ifdef DEBUG
@@ -441,7 +440,7 @@ int after_barrier_join(barrier_t *b)
     return 0;
 }
 
-int before_barrier_destroy(barrier_t *b)
+int before_barrier_destroy(barrier_t* b)
 {
     // put your customization here
 #ifdef DEBUG
@@ -450,7 +449,7 @@ int before_barrier_destroy(barrier_t *b)
     return 0;
 }
 
-int after_barrier_destroy(barrier_t *b)
+int after_barrier_destroy(barrier_t* b)
 {
     // put your customization here
 #ifdef DEBUG
@@ -459,7 +458,7 @@ int after_barrier_destroy(barrier_t *b)
     return 0;
 }
 
-int before_mqueue_create(mqueue_t *queue, int max, int size)
+int before_mqueue_create(mqueue_t* queue, int max, int size)
 {
     // put your customization here
 #ifdef DEBUG
@@ -468,7 +467,7 @@ int before_mqueue_create(mqueue_t *queue, int max, int size)
     return 0;
 }
 
-int after_mqueue_create(mqueue_t *queue, int max, int size)
+int after_mqueue_create(mqueue_t* queue, int max, int size)
 {
     // put your customization here
 #ifdef DEBUG
@@ -477,7 +476,7 @@ int after_mqueue_create(mqueue_t *queue, int max, int size)
     return 0;
 }
 
-int before_mqueue_send(mqueue_t *queue, void *msg)
+int before_mqueue_send(mqueue_t* queue, void* msg)
 {
     // put your customization here
 #ifdef DEBUG
@@ -486,7 +485,7 @@ int before_mqueue_send(mqueue_t *queue, void *msg)
     return 0;
 }
 
-int after_mqueue_send(mqueue_t *queue, void *msg)
+int after_mqueue_send(mqueue_t* queue, void* msg)
 {
     // put your customization here
 #ifdef DEBUG
@@ -495,7 +494,7 @@ int after_mqueue_send(mqueue_t *queue, void *msg)
     return 0;
 }
 
-int before_mqueue_recv(mqueue_t *queue, void *msg)
+int before_mqueue_recv(mqueue_t* queue, void* msg)
 {
     // put your customization here
 #ifdef DEBUG
@@ -504,7 +503,7 @@ int before_mqueue_recv(mqueue_t *queue, void *msg)
     return 0;
 }
 
-int after_mqueue_recv(mqueue_t *queue, void *msg)
+int after_mqueue_recv(mqueue_t* queue, void* msg)
 {
     // put your customization here
 #ifdef DEBUG
@@ -513,7 +512,7 @@ int after_mqueue_recv(mqueue_t *queue, void *msg)
     return 0;
 }
 
-int before_mqueue_destroy(mqueue_t *queue)
+int before_mqueue_destroy(mqueue_t* queue)
 {
     // put your customization here
 #ifdef DEBUG
@@ -522,7 +521,7 @@ int before_mqueue_destroy(mqueue_t *queue)
     return 0;
 }
 
-int after_mqueue_destroy(mqueue_t *queue)
+int after_mqueue_destroy(mqueue_t* queue)
 {
     // put your customization here
 #ifdef DEBUG
@@ -531,7 +530,7 @@ int after_mqueue_destroy(mqueue_t *queue)
     return 0;
 }
 
-int before_mqueue_msgs(mqueue_t *queue)
+int before_mqueue_msgs(mqueue_t* queue)
 {
     // put your customization here
 #ifdef DEBUG
@@ -540,7 +539,7 @@ int before_mqueue_msgs(mqueue_t *queue)
     return 0;
 }
 
-int after_mqueue_msgs(mqueue_t *queue)
+int after_mqueue_msgs(mqueue_t* queue)
 {
     // put your customization here
 #ifdef DEBUG
@@ -549,19 +548,19 @@ int after_mqueue_msgs(mqueue_t *queue)
     return 0;
 }
 
-task_t *scheduler()
-{       
-    task_t *nextTask = readyQueue, *chosenTask = NULL;
+task_t* scheduler()
+{
+    task_t* nextTask = readyQueue, * chosenTask = NULL;
 
     //if(!nextTask) return taskIdle;
 
      // FCFS scheduler
     int minRemaingTime = __INT_MAX__;
-    printf("\nTASKS ==============================\n");
-    printf("task dispatcher: %d, rt %d, count: %d\n\n", taskDisp->id, taskDisp->running_time, countTasks);
+    // printf("\nTASKS ==============================\n");
+    // printf("task dispatcher: %d, rt %d, count: %d\n\n", taskDisp->id, taskDisp->running_time, countTasks);
 
-    for(int i = 0; i < countTasks; i++){
-        printf("task %d, rt %d, suspended %d\n", nextTask->id, nextTask->running_time, nextTask->suspended);
+    for (int i = 0; i < countTasks; i++) {
+        // printf("task %d, runningt %d, remt %d, suspended %d\n", nextTask->id, nextTask->running_time, task_get_ret(nextTask), nextTask->suspended);
         if (task_get_ret(nextTask) < minRemaingTime && nextTask->suspended == 0)
         {
             chosenTask = nextTask;
@@ -569,10 +568,10 @@ task_t *scheduler()
         }
         nextTask = nextTask->next;
     }
-    printf("==============================\n\n");
+    // printf("==============================\n\n");
     if (!chosenTask) return taskMain;
 
     chosenTask->activations++;
-    printf("returnung task %d\n", chosenTask->id);
+    // printf("returnung task %d\n", chosenTask->id);
     return chosenTask;
 }
