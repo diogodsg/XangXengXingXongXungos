@@ -20,7 +20,7 @@ struct itimerval timer ;
 // tratador do sinal
 void tratador (int signum)
 {
-  printf ("Recebi o sinal %d\n", signum) ;
+  // printf ("Recebi o sinal %d\n", signum) ;
 }
 
 int main ()

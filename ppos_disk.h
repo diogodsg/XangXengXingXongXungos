@@ -7,6 +7,10 @@
 #ifndef __DISK_MGR__
 #define __DISK_MGR__
 
+#include <signal.h>
+#include "ppos.h"
+#include "ppos_data.h"
+#include "ppos-core-globals.h"
 // estruturas de dados e rotinas de inicializacao e acesso
 // a um dispositivo de entrada/saida orientado a blocos,
 // tipicamente um disco rigido.
@@ -15,6 +19,10 @@
 typedef struct
 {
   // completar com os campos necessarios
+  int numblocks;		// numero de blocos do disco
+  int blocksize;		// tamanho dos blocos em bytes
+  task_t* waitingTasks;
+  struct sigaction ready;	// tratador de sinal de libeda
 } disk_t ;
 
 // inicializacao do gerente de disco

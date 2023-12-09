@@ -18,7 +18,7 @@ int sair = 0;
 /* função que tratará os sinais recebidos */
 void tratador(int signum)
 {
-   printf("Recebi o sinal %d\n", signum);
+   // printf("Recebi o sinal %d\n", signum);
    sair = (signum == SIGINT);
 }
 

@@ -29,6 +29,7 @@ typedef struct task_t
     int running_time;
     int activations;
     int start_time;
+    int suspended;
 } task_t;
 
 // estrutura que define um semáforo

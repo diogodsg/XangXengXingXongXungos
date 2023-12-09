@@ -1,8 +1,12 @@
 {
-    "files.associations": {
-        "*.jsx": "javascript",
-        "ucontext.h": "c",
-        "stdio.h": "c"
-    },
-    "C_Cpp.errorSquiggles": "disabled"
+  "files.associations": {
+    "*.jsx": "javascript",
+    "ucontext.h": "c",
+    "stdio.h": "c",
+    "disk.h": "c",
+    "signal.h": "c",
+    "ppos_disk.h": "c",
+    "ppos-core-globals.h": "c"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }

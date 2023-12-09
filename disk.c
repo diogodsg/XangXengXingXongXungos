@@ -139,7 +139,7 @@ static void disk_sighandle (int sig)
 
   // disco se torna ocioso novamente
   disk.status = DISK_STATUS_IDLE ;
-
+  printf("========================== blyaaaaaaaaaaaaaatttttttttttttttt==================\n");
   // gerar um sinal SIGUSR1 para o "kernel" do usuario
   raise (SIGUSR1) ;
 }
