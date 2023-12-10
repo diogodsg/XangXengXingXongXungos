@@ -136,10 +136,9 @@ static void disk_sighandle(int sig)
 
   // guarda numero de bloco da ultima operacao
   disk.prev_block = disk.next_block;
-
   // disco se torna ocioso novamente
   raise(SIGUSR1);
-  printf("blyaaat!!!!!===================a!&$¨&!*uepa\n");
+  // printf("blyaaat!!!!!===================a!&$¨&!*uepa\n");
   disk.status = DISK_STATUS_IDLE;
 
   // gerar um sinal SIGUSR1 para o "kernel" do usuario
@@ -203,7 +202,6 @@ static int disk_init()
 // funcao que implementa a interface de acesso ao disco em baixo nivel
 int disk_cmd(int cmd, int block, void* buffer)
 {
-  // printf("inside disk-command\n");
 
 #ifdef DEBUG_DISK
   printf("DISK: received command %d\n", cmd);
@@ -263,7 +261,6 @@ int disk_cmd(int cmd, int block, void* buffer)
 
     // arma o timer que simula o atraso do disco
     disk_settimer();
-
     return 0;
 
   default:
