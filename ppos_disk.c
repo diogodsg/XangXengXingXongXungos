@@ -16,11 +16,11 @@ void task_disk_manager_body()
 {
 
     while (active) {
-        while (mqueue_msgs(&order_queue) < 1) task_yield();
+        while (disk.waitingOrders == NULL) task_yield();
 
         order* chosen_order = NULL;
 
-        mqueue_recv(&order_queue, (void*)&chosen_order);
+        dequeue_order(&chosen_order, &disk.waitingOrders);
 
         task_suspend(&taskDiskManager, NULL);
         if (chosen_order->type == 0) {
@@ -62,21 +62,24 @@ void print_queue(order* queue) {
 
 int enqueue_order(order* e_order, order** queue)
 {
-    if (!e_order) return -1;
+    if (!e_order || !queue) return -1;
 
-    if (!queue || !*queue)
+    if (!(*queue))
     {
         *queue = e_order;
+
         e_order->next = e_order;
         e_order->prev = e_order;
         return 0;
     }
+
     order* first = (*queue)->next;
     (*queue)->next = e_order;
     (*queue)->next->next = first;
     (*queue)->next->prev = (*queue);
     first->prev = e_order;
     *queue = e_order;
+
     return 0;
 }
 
@@ -154,11 +157,9 @@ int disk_block_read(int block, void* buffer)
     new_read_order->next = NULL;
 
     taskExec->forbid_preempt = 1;
-
-    mqueue_send(&order_queue, (void*)&new_read_order);
-
-
+    enqueue_order(new_read_order, &disk.waitingOrders);
     task_suspend(taskExec, &disk.waitingTasks);
+
     task_yield();
 
 
@@ -177,7 +178,7 @@ int disk_block_write(int block, void* buffer)
     new_write_order->prev = NULL;
     new_write_order->next = NULL;
 
-    mqueue_send(&order_queue, (void*)&new_write_order);
+    enqueue_order(new_write_order, &disk.waitingOrders);
 
     task_suspend(taskExec, &disk.waitingTasks);
     task_yield();
