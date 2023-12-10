@@ -45,7 +45,7 @@ typedef struct
 // numBlocks: tamanho do disco, em blocos
 // blockSize: tamanho de cada bloco do disco, em bytes
 int disk_mgr_init(int* numBlocks, int* blockSize);
-
+void disk_mgr_destroy();
 // leitura de um bloco, do disco para o buffer
 int disk_block_read(int block, void* buffer);
 

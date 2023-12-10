@@ -68,13 +68,15 @@ int task_getprio(task_t* task)
 /* função que tratará os sinais recebidos */
 void tratador(int signum)
 {
+    // printf("curr task: %d, state: %c, state of task main s %c\n", taskExec->id, taskExec->state, taskMain->state);
+
     // printf("Recebi o sinal %d - TRATADOR\n", signum);
     taskExec->running_time += TICK_TIME;
     currentTaskTime++;
     systemTime += TICK_TIME;
     // printf("rt main %d\n", taskMain->eet);
     // printf("id: %d current time: %d\n", taskExec->id, currentTaskTime);
-    if (currentTaskTime >= QUANTUM_SIZE && taskExec->id != taskDisp->id)
+    if (currentTaskTime >= QUANTUM_SIZE && taskExec->id != taskDisp->id && taskExec->id != 40)
     {
         currentTaskTime = 0;
         // printf("preempting task by time\n");
@@ -115,7 +117,7 @@ void before_ppos_init()
 void after_ppos_init()
 {
     // put your customization here
-    task_set_eet(taskMain, INT_MAX - 1);
+    task_set_eet(taskMain, INT_MAX / 2);
 
     // task_create (taskIdle, task_idle_body, &taskIdleName);
 #ifdef DEBUG
@@ -128,7 +130,7 @@ void before_task_create(task_t* task)
 
     task_set_eet(task, 99999);
     task->start_time = systime();
-    task->suspended = 0;
+    // task->suspended = 0;
 #ifdef DEBUG
     printf("\ntask_create - BEFORE - [%d]", task->id);
 #endif
@@ -136,6 +138,7 @@ void before_task_create(task_t* task)
 
 void after_task_create(task_t* task)
 {
+    task->state = 'r';
     // put your customization here
 #ifdef DEBUG
     printf("\ntask_create - AFTER - [%d]", task->id);
@@ -146,6 +149,8 @@ void before_task_exit()
 {
     // put your customization here
     printf("Task %d exit: execution time %d ms, processor time %d ms, %d activations\n", taskExec->id, systime() - taskExec->start_time, taskExec->running_time, taskExec->activations);
+    if (task_id() == 0)
+        disk_mgr_destroy();
 #ifdef DEBUG
     printf("\ntask_exit - BEFORE - [%d]", taskExec->id);
 #endif
@@ -200,7 +205,7 @@ void before_task_suspend(task_t* task)
 void after_task_suspend(task_t* task)
 {
     // put your customization here
-    task->suspended = 1;
+    // task->suspended = 1;
 #ifdef DEBUG
     printf("\ntask_suspend - AFTER - [%d]", task->id);
 #endif
@@ -220,7 +225,7 @@ void after_task_resume(task_t* task)
 {
     // put your customization here
     // printf("after resuming task\n");
-    task->suspended = 0;
+    // task->suspended = 0;
 #ifdef DEBUG
     printf("\ntask_resume - AFTER - [%d]", task->id);
 #endif
@@ -560,8 +565,8 @@ task_t* scheduler()
     // printf("task dispatcher: %d, rt %d, count: %d\n\n", taskDisp->id, taskDisp->running_time, countTasks);
 
     for (int i = 0; i < countTasks; i++) {
-        // printf("task %d, runningt %d, remt %d, suspended %d\n", nextTask->id, nextTask->running_time, task_get_ret(nextTask), nextTask->suspended);
-        if (task_get_ret(nextTask) < minRemaingTime && nextTask->suspended == 0)
+        // printf("task %d, runningt %d, remt %d\n", nextTask->id, nextTask->running_time, task_get_ret(nextTask));
+        if (task_get_ret(nextTask) < minRemaingTime)
         {
             chosenTask = nextTask;
             minRemaingTime = task_get_ret(chosenTask);
@@ -569,7 +574,10 @@ task_t* scheduler()
         nextTask = nextTask->next;
     }
     // printf("==============================\n\n");
-    if (!chosenTask) return taskMain;
+    if (!chosenTask) {
+        printf("oh no no tasks :(\n");
+        return taskMain;
+    }
 
     chosenTask->activations++;
     // printf("returnung task %d\n", chosenTask->id);

@@ -138,10 +138,11 @@ static void disk_sighandle(int sig)
   disk.prev_block = disk.next_block;
 
   // disco se torna ocioso novamente
+  raise(SIGUSR1);
+  printf("blyaaat!!!!!===================a!&$¨&!*uepa\n");
   disk.status = DISK_STATUS_IDLE;
 
   // gerar um sinal SIGUSR1 para o "kernel" do usuario
-  raise(SIGUSR1);
 }
 
 /**********************************************************************/
