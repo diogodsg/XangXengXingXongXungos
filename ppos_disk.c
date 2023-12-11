@@ -7,11 +7,12 @@
 disk_t disk;
 task_t taskDiskManager;   // Representa a funcao gerenciadora de disco
 // mutex_t mutex;
+int headPos = 0;
 task_t* command_running_task;
 mqueue_t order_queue;
 task_t* sussy = NULL;
 int active;
-
+int wanderedBlocks = 0;
 void task_disk_manager_body()
 {
 
@@ -19,9 +20,20 @@ void task_disk_manager_body()
         while (disk.waitingOrders == NULL) task_yield();
 
         order* chosen_order = NULL;
+        int lastBlock = headPos;
 
-        dequeue_order(&chosen_order, &disk.waitingOrders);
-
+#ifdef CSCAN    
+        dequeue_order_cscan(&chosen_order, &disk.waitingOrders);
+#elif SSTF
+        dequeue_order_sstf(&chosen_order, &disk.waitingOrders);
+#else
+        dequeue_order_sstf(&chosen_order, &disk.waitingOrders);
+#endif
+        if (headPos >= lastBlock) {
+            wanderedBlocks += abs(lastBlock - headPos);
+        } else {
+            wanderedBlocks += 256 - lastBlock + headPos;
+        }
         task_suspend(&taskDiskManager, NULL);
         if (chosen_order->type == 0) {
             disk_cmd(DISK_CMD_READ, chosen_order->block, chosen_order->buffer);
@@ -46,7 +58,7 @@ void free_disk_handler(int signum)
 }
 
 void print_queue(order* queue) {
-
+    printf("");
     if (!queue) return;
 
     order* next = queue;
@@ -83,7 +95,7 @@ int enqueue_order(order* e_order, order** queue)
     return 0;
 }
 
-int dequeue_order(order** e_order, order** queue)
+int dequeue_order_fcfs(order** e_order, order** queue)
 {
 
     if (!queue || !(*queue)) {
@@ -107,8 +119,99 @@ int dequeue_order(order** e_order, order** queue)
     }
 }
 
+int dequeue_order_sstf(order** e_order, order** queue)
+{
+    if (!queue || !(*queue)) {
+        return -1;
+    }
+
+
+    order* next = queue;
+    order* chosenTask = queue;
+
+    int closest = INT_MAX;
+
+    next = (*queue);
+    int count = 0;
+    do {
+        count++;
+        if (abs(headPos - next->block) < closest) {
+            closest = next->block;
+            chosenTask = next;
+        }
+        next = next->next;
+    } while (next != (*queue));
+
+    headPos = chosenTask->block;
+
+
+    chosenTask->prev->next = chosenTask->next;
+    chosenTask->next->prev = chosenTask->prev;
+
+    *e_order = chosenTask;
+    if (count == 1) (*queue) = NULL;
+    else
+        (*queue) = (*e_order)->next;
+
+    return 0;
+
+}
+
+
+int dequeue_order_cscan(order** e_order, order** queue)
+{
+    if (!queue || !(*queue)) {
+        return -1;
+    }
+    order* next = *queue;
+    order* chosenTask = NULL;
+
+    int closest = INT_MAX;
+
+    int count = 0;
+    while (1) {
+
+        do {
+            count++;
+
+            if (next->block >= headPos && next->block - headPos <= closest) {
+                closest = next->block - headPos;
+                chosenTask = next;
+            }
+
+            next = next->next;
+        } while (next != (*queue));
+        if (!chosenTask) {
+            closest = INT_MAX;
+            headPos = 0;
+            count = 0;
+        } else break;
+
+    }
+
+    headPos = chosenTask->block;
+
+
+    chosenTask->prev->next = chosenTask->next;
+    chosenTask->next->prev = chosenTask->prev;
+    *e_order = chosenTask;
+    if (count == 1) (*queue) = NULL;
+    else
+        (*queue) = (*e_order)->next;
+
+    return 0;
+
+}
+
+
 void disk_mgr_destroy() {
-    active = 0;
+#ifdef CSCAN    
+    printf("wandered blocks using CSCAN: %d blocks\n", wanderedBlocks);
+#elif SSTF
+    printf("wandered blocks using SSTF: %d blocks\n", wanderedBlocks);
+#else
+    printf("wandered blocks using FCFS: %d blocks\n", wanderedBlocks);
+#endif    
     exit(1);
 }
 

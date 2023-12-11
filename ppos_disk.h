@@ -54,7 +54,7 @@ int disk_block_write(int block, void* buffer);
 
 
 int enqueue_order(order* e_order, order** queue);
-int dequeue_order(order** e_order, order** queue);
+int dequeue_order_fcfs(order** e_order, order** queue);
 
 
 
