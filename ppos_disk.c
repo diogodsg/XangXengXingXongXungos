@@ -169,8 +169,8 @@ int dequeue_order_cscan(order** e_order, order** queue)
     int closest = INT_MAX;
 
     int count = 0;
-    while (1) {
 
+    while (closest > 256) {
         do {
             count++;
 
@@ -181,12 +181,12 @@ int dequeue_order_cscan(order** e_order, order** queue)
 
             next = next->next;
         } while (next != (*queue));
+
         if (!chosenTask) {
             closest = INT_MAX;
             headPos = 0;
             count = 0;
-        } else break;
-
+        }
     }
 
     headPos = chosenTask->block;
