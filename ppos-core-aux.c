@@ -75,7 +75,7 @@ void tratador(int signum)
     task_t* next = readyQueue;
 
 
-    if (currentTaskTime >= QUANTUM_SIZE && taskExec->id != taskDisp->id && taskExec->id != 40 && !taskExec->forbid_preempt)
+    if (currentTaskTime >= QUANTUM_SIZE && taskExec->id != taskDisp->id && taskExec->id != 40)
     {
         currentTaskTime = 0;
         task_yield();
@@ -137,7 +137,6 @@ void before_task_create(task_t* task)
 
 void after_task_create(task_t* task)
 {
-    task->forbid_preempt = 0;
     // put your customization here
 #ifdef DEBUG
     printf("\ntask_create - AFTER - [%d]", task->id);

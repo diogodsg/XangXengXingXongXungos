@@ -262,6 +262,7 @@ int disk_block_read(int block, void* buffer)
     taskExec->forbid_preempt = 1;
     enqueue_order(new_read_order, &disk.waitingOrders);
     task_suspend(taskExec, &disk.waitingTasks);
+    taskExec->forbid_preempt = 0;
 
     task_yield();
 
@@ -281,9 +282,11 @@ int disk_block_write(int block, void* buffer)
     new_write_order->prev = NULL;
     new_write_order->next = NULL;
 
+    taskExec->forbid_preempt = 1;
     enqueue_order(new_write_order, &disk.waitingOrders);
 
     task_suspend(taskExec, &disk.waitingTasks);
+    taskExec->forbid_preempt = 0;
     task_yield();
 
     return 0;
